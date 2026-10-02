@@ -1,0 +1,381 @@
+--[[
+    OPYOUNGPRINCEHUB V1
+    BAHAY KUBO GARDEN
+    Premium Glass UI
+    Auto Harvest / Auto Sell / Anti-AFK
+
+    NOTE:
+    Replace the contents of harvestCrop() and sellInventory()
+    with your game's actual server-side functions/remotes.
+]]
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local VirtualUser = game:GetService("VirtualUser")
+
+local Player = Players.LocalPlayer
+
+--==================================================
+-- CLEAN OLD GUI
+--==================================================
+
+pcall(function()
+    local old = game.CoreGui:FindFirstChild("OPyoungprincehub")
+    if old then
+        old:Destroy()
+    end
+end)
+
+--==================================================
+-- SETTINGS
+--==================================================
+
+local AutoHarvest = false
+local AutoSell = false
+local AntiAFK = false
+
+--==================================================
+-- GAME FUNCTIONS
+--==================================================
+
+local function harvestCrop()
+    -- PUT YOUR ACTUAL HARVEST FUNCTION HERE
+    --
+    -- Example if your own game has:
+    -- ReplicatedStorage.Remotes.Harvest:FireServer()
+    --
+    -- DO NOT GUESS THE REMOTE NAME.
+
+    local Remotes = ReplicatedStorage:FindFirstChild("Remotes")
+
+    if not Remotes then
+        return
+    end
+
+    local Harvest = Remotes:FindFirstChild("Harvest")
+
+    if Harvest and Harvest:IsA("RemoteEvent") then
+        Harvest:FireServer()
+    end
+end
+
+local function sellInventory()
+    -- PUT YOUR ACTUAL SELL FUNCTION HERE
+
+    local Remotes = ReplicatedStorage:FindFirstChild("Remotes")
+
+    if not Remotes then
+        return
+    end
+
+    local Sell = Remotes:FindFirstChild("SellInventory")
+
+    if Sell and Sell:IsA("RemoteEvent") then
+        Sell:FireServer()
+    end
+end
+
+--==================================================
+-- AUTO HARVEST LOOP
+--==================================================
+
+task.spawn(function()
+    while task.wait(0.5) do
+        if AutoHarvest then
+            pcall(harvestCrop)
+        end
+    end
+end)
+
+--==================================================
+-- AUTO SELL LOOP
+--==================================================
+
+task.spawn(function()
+    while task.wait(2) do
+        if AutoSell then
+            pcall(sellInventory)
+        end
+    end
+end)
+
+--==================================================
+-- ANTI-AFK
+--==================================================
+
+Player.Idled:Connect(function()
+    if not AntiAFK then
+        return
+    end
+
+    pcall(function()
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new(0, 0))
+    end)
+end)
+
+--==================================================
+-- GUI
+--==================================================
+
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "OPyoungprincehub"
+Gui.ResetOnSpawn = false
+Gui.IgnoreGuiInset = true
+Gui.Parent = game.CoreGui
+
+--==================================================
+-- CROWN OPENER
+--==================================================
+
+local Crown = Instance.new("TextButton")
+Crown.Name = "CrownOpener"
+Crown.Size = UDim2.fromOffset(58, 58)
+Crown.Position = UDim2.new(0, 22, 0.5, -29)
+Crown.BackgroundColor3 = Color3.fromRGB(18, 20, 28)
+Crown.BackgroundTransparency = 0.15
+Crown.Text = "👑"
+Crown.TextSize = 28
+Crown.Font = Enum.Font.GothamBold
+Crown.TextColor3 = Color3.fromRGB(255, 255, 255)
+Crown.AutoButtonColor = false
+Crown.Parent = Gui
+
+local CrownCorner = Instance.new("UICorner")
+CrownCorner.CornerRadius = UDim.new(0, 18)
+CrownCorner.Parent = Crown
+
+local CrownStroke = Instance.new("UIStroke")
+CrownStroke.Color = Color3.fromRGB(90, 220, 255)
+CrownStroke.Thickness = 1.5
+CrownStroke.Transparency = 0.15
+CrownStroke.Parent = Crown
+
+--==================================================
+-- MAIN WINDOW
+--==================================================
+
+local Main = Instance.new("Frame")
+Main.Name = "Main"
+Main.Size = UDim2.fromOffset(390, 285)
+Main.Position = UDim2.new(0.5, -195, 0.5, -142)
+Main.BackgroundColor3 = Color3.fromRGB(13, 16, 23)
+Main.BackgroundTransparency = 0.16
+Main.Visible = true
+Main.Parent = Gui
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 18)
+MainCorner.Parent = Main
+
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = Color3.fromRGB(80, 210, 255)
+MainStroke.Transparency = 0.2
+MainStroke.Thickness = 1.5
+MainStroke.Parent = Main
+
+--==================================================
+-- HEADER
+--==================================================
+
+local Header = Instance.new("Frame")
+Header.Size = UDim2.new(1, 0, 0, 65)
+Header.BackgroundTransparency = 1
+Header.Parent = Main
+
+local Title = Instance.new("TextLabel")
+Title.BackgroundTransparency = 1
+Title.Position = UDim2.fromOffset(20, 10)
+Title.Size = UDim2.new(1, -70, 0, 27)
+Title.Text = "OPyoungprincehub"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 20
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.TextColor3 = Color3.fromRGB(235, 245, 255)
+Title.Parent = Header
+
+local SubTitle = Instance.new("TextLabel")
+SubTitle.BackgroundTransparency = 1
+SubTitle.Position = UDim2.fromOffset(21, 37)
+SubTitle.Size = UDim2.new(1, -70, 0, 18)
+SubTitle.Text = "BAHAY KUBO  •  PREMIUM"
+SubTitle.Font = Enum.Font.GothamMedium
+SubTitle.TextSize = 10
+SubTitle.TextXAlignment = Enum.TextXAlignment.Left
+SubTitle.TextColor3 = Color3.fromRGB(100, 205, 235)
+SubTitle.Parent = Header
+
+local Close = Instance.new("TextButton")
+Close.Size = UDim2.fromOffset(34, 34)
+Close.Position = UDim2.new(1, -48, 0, 15)
+Close.BackgroundTransparency = 1
+Close.Text = "×"
+Close.TextSize = 25
+Close.Font = Enum.Font.GothamMedium
+Close.TextColor3 = Color3.fromRGB(180, 190, 200)
+Close.Parent = Header
+
+--==================================================
+-- CONTENT
+--==================================================
+
+local Content = Instance.new("Frame")
+Content.BackgroundTransparency = 1
+Content.Position = UDim2.fromOffset(15, 75)
+Content.Size = UDim2.new(1, -30, 1, -90)
+Content.Parent = Main
+
+local Layout = Instance.new("UIListLayout")
+Layout.Padding = UDim.new(0, 10)
+Layout.SortOrder = Enum.SortOrder.LayoutOrder
+Layout.Parent = Content
+
+--==================================================
+-- TOGGLE CREATOR
+--==================================================
+
+local function CreateToggle(text, callback)
+
+    local Holder = Instance.new("Frame")
+    Holder.Size = UDim2.new(1, 0, 0, 55)
+    Holder.BackgroundColor3 = Color3.fromRGB(25, 29, 39)
+    Holder.BackgroundTransparency = 0.2
+    Holder.Parent = Content
+
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 13)
+    Corner.Parent = Holder
+
+    local Stroke = Instance.new("UIStroke")
+    Stroke.Color = Color3.fromRGB(70, 90, 105)
+    Stroke.Transparency = 0.45
+    Stroke.Parent = Holder
+
+    local Label = Instance.new("TextLabel")
+    Label.BackgroundTransparency = 1
+    Label.Position = UDim2.fromOffset(15, 0)
+    Label.Size = UDim2.new(1, -80, 1, 0)
+    Label.Text = text
+    Label.Font = Enum.Font.GothamMedium
+    Label.TextSize = 13
+    Label.TextColor3 = Color3.fromRGB(225, 232, 240)
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+    Label.Parent = Holder
+
+    local Button = Instance.new("TextButton")
+    Button.Size = UDim2.fromOffset(48, 25)
+    Button.Position = UDim2.new(1, -62, 0.5, -12)
+    Button.BackgroundColor3 = Color3.fromRGB(55, 60, 70)
+    Button.Text = ""
+    Button.AutoButtonColor = false
+    Button.Parent = Holder
+
+    local ButtonCorner = Instance.new("UICorner")
+    ButtonCorner.CornerRadius = UDim.new(1, 0)
+    ButtonCorner.Parent = Button
+
+    local Knob = Instance.new("Frame")
+    Knob.Size = UDim2.fromOffset(19, 19)
+    Knob.Position = UDim2.new(0, 3, 0.5, -9)
+    Knob.BackgroundColor3 = Color3.fromRGB(225, 230, 235)
+    Knob.Parent = Button
+
+    local KnobCorner = Instance.new("UICorner")
+    KnobCorner.CornerRadius = UDim.new(1, 0)
+    KnobCorner.Parent = Knob
+
+    local state = false
+
+    Button.MouseButton1Click:Connect(function()
+
+        state = not state
+
+        if state then
+            Button.BackgroundColor3 = Color3.fromRGB(45, 190, 225)
+            Knob.Position = UDim2.new(1, -22, 0.5, -9)
+            Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+        else
+            Button.BackgroundColor3 = Color3.fromRGB(55, 60, 70)
+            Knob.Position = UDim2.new(0, 3, 0.5, -9)
+            Label.TextColor3 = Color3.fromRGB(225, 232, 240)
+        end
+
+        callback(state)
+    end)
+end
+
+--==================================================
+-- TOGGLES
+--==================================================
+
+CreateToggle("Auto Harvest All Crops", function(state)
+    AutoHarvest = state
+end)
+
+CreateToggle("Auto Sell Inventory", function(state)
+    AutoSell = state
+end)
+
+CreateToggle("Anti-AFK", function(state)
+    AntiAFK = state
+end)
+
+--==================================================
+-- OPEN / CLOSE
+--==================================================
+
+Crown.MouseButton1Click:Connect(function()
+    Main.Visible = not Main.Visible
+end)
+
+Close.MouseButton1Click:Connect(function()
+    Main.Visible = false
+end)
+
+--==================================================
+-- DRAGGING
+--==================================================
+
+local UserInputService = game:GetService("UserInputService")
+
+local dragging = false
+local dragStart
+local startPos
+
+Header.InputBegan:Connect(function(input)
+
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+
+        dragging = true
+        dragStart = input.Position
+        startPos = Main.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+
+    if not dragging then
+        return
+    end
+
+    if input.UserInputType ~= Enum.UserInputType.MouseMovement
+        and input.UserInputType ~= Enum.UserInputType.Touch then
+        return
+    end
+
+    local delta = input.Position - dragStart
+
+    Main.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+end)
